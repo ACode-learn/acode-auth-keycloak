@@ -20,11 +20,12 @@
     <quarkus.native.builder-image>quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21</quarkus.native.builder-image>
 
     <!-- Keycloak -->
-    <keycloak.version>25.0.2</keycloak.version>
+    <keycloak.version>25.0.6</keycloak.version>
 
     <!-- Keycloak versions fixes -->
+    <asm.version>9.6</asm.version>
     <vertx.version>4.5.7</vertx.version>
-    <asm.version>9.7</asm.version>
+    <smallrye-mutiny-vertx-core.version>3.11.0</smallrye-mutiny-vertx-core.version>
     <apache-mime4j-dom.version>0.8.11</apache-mime4j-dom.version>
 
     <!-- Maven -->
@@ -39,6 +40,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+
     <!-- Plugins -->
     <build-helper-maven-plugin.version>3.3.0</build-helper-maven-plugin.version>
 
@@ -119,13 +121,6 @@
       </dependency>
 
       <!--Fix versions-->
-      <!-- CVE fixes -->
-      <dependency>
-        <groupId>org.apache.james</groupId>
-        <artifactId>apache-mime4j-dom</artifactId>
-        <version>${apache-mime4j-dom.version}</version>
-      </dependency>
-
       <!--asm-->
       <dependency>
         <groupId>org.ow2.asm</groupId>
