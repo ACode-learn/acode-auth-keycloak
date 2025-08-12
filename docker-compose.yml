@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15.4
+    image: postgres:16
     container_name: postgres
     environment:
       POSTGRES_DB: keycloak
@@ -16,24 +16,40 @@ services:
 
   keycloak:
     build: .
+#    image: keycloak/keycloak
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       - KC_LOG_LEVEL
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
       - KC_HOSTNAME_STRICT_HTTPS
       - KC_HEALTH_ENABLED
       - KC_METRICS_ENABLED
+      - KC_HTTP_MANAGEMENT_ENABLED
+      - KC_HTTP_MANAGEMENT_HOST
+      - KC_HTTP_MANAGEMENT_PORT
+
     #      - JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,address=*:8787,server=y,suspend=n"
     container_name: keycloak
     entrypoint: /opt/keycloak/bin/kc.sh start-dev --http-enabled=true --cache=local
     ports:
       - "8080:8080"
-    #      - "8787:8787"
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://keycloak:8080/ || exit 1" ]
+#      test: [ "CMD-SHELL", "curl -f http://keycloak:8080/ || exit 1" ]
+#      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${KC_HTTP_MANAGEMENT_PORT:?}/management/health/ready || exit 1"]
+      test: [
+        "CMD-SHELL",
+        "exec 3<>/dev/tcp/localhost/${KC_HTTP_MANAGEMENT_PORT:?}; \
+        echo -en 'GET /health/ready' >&3; \
+        # Give the server a moment to respond, then search for 'UP'
+        if timeout 3 cat <&3 | grep -m 1 'UP'; then \
+          exec 3<&-; exec 3>&-; exit 0; \
+        else \
+          exec 3<&-; exec 3>&-; exit 1; \
+        fi"
+      ]
       interval: 10s
       timeout: 10s
       retries: 20
