@@ -56,7 +56,7 @@ services:
       start_period: 10s
 
   keycloak-java-configuration:
-    image: openjdk:21
+    image: eclipse-temurin:21-jre
     volumes:
       - ./java-configuration/target/java-configuration.jar:/jars/java-configuration.jar
     environment:

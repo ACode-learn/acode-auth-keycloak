@@ -24,6 +24,7 @@ public class AcodeConfiguration {
         log.info("-----------------------------------------------");
 
         new RealmConfiguration(keycloak.realms()).configure(REALM_NAME, REALM_DISPLAY_NAME);
+        new UiClientConfiguration(keycloak.realm(REALM_NAME).clients()).configure();
 
         log.info("-----------------------------------------------");
         log.infof("Finished configuration of realm '%s'.%n", REALM_NAME);
