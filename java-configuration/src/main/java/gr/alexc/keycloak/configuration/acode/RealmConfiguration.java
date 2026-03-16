@@ -57,7 +57,7 @@ public class RealmConfiguration {
         realmRepresentation.setBruteForceProtected(true);
         realmRepresentation.setEnabled(true);
 //        realmRepresentation.setBrowserFlow(browserFlowAlias);
-//        realmRepresentation.setLoginTheme("config-as-code-theme");
+        realmRepresentation.setLoginTheme("acode-auth-keycloak-theme");
 
         realmResource.update(realmRepresentation);
         configureUserProfile(realmResource);
