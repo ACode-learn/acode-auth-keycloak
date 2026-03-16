@@ -20,8 +20,7 @@ public class KeycloakConfigurationApp {
                     configuration.get("KEYCLOAK_PASSWORD"),
                     configuration.get("KEYCLOAK_REALM"));
             Keycloak keycloak = keycloakClientBuilder.getClient();
-
-            KeycloakConfiguration keycloakConfig = new KeycloakConfiguration(keycloak);
+            KeycloakConfiguration keycloakConfig = new KeycloakConfiguration(keycloak, configuration);
             keycloakConfig.configure();
         } catch (Exception all) {
             Logger.getLogger(KeycloakConfigurationApp.class).error("Exception occurred.", all);

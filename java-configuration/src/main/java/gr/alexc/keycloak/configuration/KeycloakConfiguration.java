@@ -11,8 +11,8 @@ import org.keycloak.admin.client.Keycloak;
 @JBossLog
 @AllArgsConstructor
 public class KeycloakConfiguration {
-
     private final Keycloak keycloak;
+    private final KeycloakConfigurationProperties configuration;
 
     /**
      * Starts configuration of Keycloak.
@@ -22,7 +22,7 @@ public class KeycloakConfiguration {
         log.info("Starting Java configuration");
         log.info("-----------------------------------------------");
 
-        new AcodeConfiguration(keycloak).configure();
+        new AcodeConfiguration(keycloak, configuration).configure();
 
         log.info("-----------------------------------------------");
         log.infof("Finished Java configuration without errors.");

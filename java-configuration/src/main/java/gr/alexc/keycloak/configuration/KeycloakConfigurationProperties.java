@@ -29,6 +29,16 @@ public class KeycloakConfigurationProperties {
     }
 
     /**
+     * Gets the boolean value for given configuration property.
+     *
+     * @param name Name of the configuration property to get a value for.
+     * @return Boolean value for the configuration property or false if the property doesn't exist or is not "true".
+     */
+    public boolean getBoolean(String name) {
+        return Boolean.parseBoolean(get(name));
+    }
+
+    /**
      * Creates a new configuration based on System environment variables and Java system properties.
      * Java system properties have higher precedence than environment variables.
      *

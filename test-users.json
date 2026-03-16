@@ -1,0 +1,29 @@
+[
+  {
+    "userId": "c9dfb9e1-a612-4408-b830-8e4db1469b71",
+    "username": "test-admin",
+    "password": "admin",
+    "email": "admin@acode.gr",
+    "firstName": "Test",
+    "lastName": "Admin",
+    "realmRoles": ["admin"]
+  },
+  {
+    "userId": "ca77fd54-3cf1-4f51-967d-b4b2cb7ca7cb",
+    "username": "test-teacher",
+    "password": "teacher",
+    "email": "teacher@acode.gr",
+    "firstName": "Test",
+    "lastName": "Teacher",
+    "realmRoles": ["teacher"]
+  },
+  {
+    "userId": "1d6e54b6-afbb-47f6-b1bb-8ce445d159c5",
+    "username": "test-student",
+    "password": "student",
+    "email": "student@acode.gr",
+    "firstName": "Test",
+    "lastName": "Student",
+    "realmRoles": ["student"]
+  }
+]
