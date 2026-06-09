@@ -3,7 +3,9 @@ package gr.alexc.keycloak.configuration;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +38,59 @@ public class KeycloakConfigurationProperties {
      */
     public boolean getBoolean(String name) {
         return Boolean.parseBoolean(get(name));
+    }
+
+    /**
+     * Gets the value for given configuration property or a default value when the property is missing or blank.
+     *
+     * @param name         Name of the configuration property to get a value for.
+     * @param defaultValue Default value to return when the property is missing or blank.
+     * @return Configured value when present and not blank, otherwise the default value.
+     */
+    public String getOrDefault(String name, String defaultValue) {
+        String value = get(name);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    /**
+     * Gets the boolean value for given configuration property or a default value when the property is missing or blank.
+     *
+     * @param name         Name of the configuration property to get a value for.
+     * @param defaultValue Default value to return when the property is missing or blank.
+     * @return Parsed boolean value when present and not blank, otherwise the default value.
+     */
+    public boolean getBooleanOrDefault(String name, boolean defaultValue) {
+        String value = get(name);
+        if (value == null || value.isBlank()) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value);
+    }
+
+    /**
+     * Gets a list of values for given configuration property from a comma-separated value.
+     * Each item is trimmed and blank items are removed.
+     *
+     * @param name          Name of the configuration property to get values for.
+     * @param defaultValues Default values to return when the property is missing, blank, or only contains blanks.
+     * @return List of configured values, otherwise the default values.
+     */
+    public List<String> getListOrDefault(String name, List<String> defaultValues) {
+        String value = get(name);
+        if (value == null || value.isBlank()) {
+            return defaultValues;
+        }
+        List<String> values = Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .collect(Collectors.toList());
+        if (values.isEmpty()) {
+            return defaultValues;
+        }
+        return values;
     }
 
     /**

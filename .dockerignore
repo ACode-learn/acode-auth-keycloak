@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+
+**/target
+**/node_modules
+**/dist
+**/dist_keycloak
+**/build
+
+.DS_Store
+*.log

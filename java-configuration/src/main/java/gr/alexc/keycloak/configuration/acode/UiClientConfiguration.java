@@ -1,5 +1,6 @@
 package gr.alexc.keycloak.configuration.acode;
 
+import gr.alexc.keycloak.configuration.KeycloakConfigurationProperties;
 import lombok.AllArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.admin.client.resource.ClientsResource;
@@ -12,17 +13,25 @@ import java.util.Map;
 @AllArgsConstructor
 public class UiClientConfiguration {
 
+    private static final String DEFAULT_CLIENT_ID = "acode-learn-ui";
+    private static final String DEFAULT_CLIENT_NAME = "Acode Learn UI";
+    private static final String DEFAULT_CLIENT_DESCRIPTION = "Client for the UI application";
+    private static final String DEFAULT_UI_BASE_URL = "http://localhost:4200";
+    private static final boolean DEFAULT_CLIENT_ENABLED = true;
+    private static final boolean DEFAULT_FRONTCHANNEL_LOGOUT = true;
+
     private final ClientsResource clientsResource;
+    private final KeycloakConfigurationProperties configuration;
 
     public void configure() {
-        String clientId = "acode-learn-ui";
+        String clientId = getClientId();
         List<ClientRepresentation> clients = clientsResource.findByClientId(clientId);
         if (clients.isEmpty()) {
             log.infof("Creating client '%s'", clientId);
             createClient();
         } else {
             log.infof("Updating client '%s'", clientId);
-            updateClient(clients.get(0).getId());
+            updateClient(clients.getFirst().getId());
         }
     }
 
@@ -36,20 +45,35 @@ public class UiClientConfiguration {
         clientsResource.get(id).update(client);
     }
 
-    private ClientRepresentation getClientRepresentation() {
+    private String getClientId() {
+        return configuration.getOrDefault("KEYCLOAK_UI_CLIENT_ID", DEFAULT_CLIENT_ID);
+    }
+
+    private String getBaseUrl() {
+        return configuration.getOrDefault("KEYCLOAK_UI_CLIENT_BASE_URL", DEFAULT_UI_BASE_URL);
+    }
+
+    ClientRepresentation getClientRepresentation() {
+        String baseUrl = getBaseUrl();
         ClientRepresentation client = new ClientRepresentation();
-        client.setClientId("acode-learn-ui");
-        client.setName("Acode Learn UI");
-        client.setDescription("Client for the UI application");
-        client.setRootUrl("");
-        client.setAdminUrl("");
-        client.setBaseUrl("");
+        client.setClientId(getClientId());
+        client.setName(configuration.getOrDefault("KEYCLOAK_UI_CLIENT_NAME", DEFAULT_CLIENT_NAME));
+        client.setDescription(configuration.getOrDefault("KEYCLOAK_UI_CLIENT_DESCRIPTION", DEFAULT_CLIENT_DESCRIPTION));
+        client.setRootUrl(configuration.getOrDefault("KEYCLOAK_UI_CLIENT_ROOT_URL", baseUrl));
+        client.setAdminUrl(configuration.getOrDefault("KEYCLOAK_UI_CLIENT_ADMIN_URL", baseUrl));
+        client.setBaseUrl(baseUrl);
         client.setSurrogateAuthRequired(false);
-        client.setEnabled(true);
+        client.setEnabled(configuration.getBooleanOrDefault("KEYCLOAK_UI_CLIENT_ENABLED", DEFAULT_CLIENT_ENABLED));
         client.setAlwaysDisplayInConsole(false);
         client.setClientAuthenticatorType("client-secret");
-        client.setRedirectUris(List.of("http://localhost:4200/auth"));
-        client.setWebOrigins(List.of("http://localhost:4200"));
+        client.setRedirectUris(configuration.getListOrDefault(
+                "KEYCLOAK_UI_CLIENT_REDIRECT_URIS",
+                List.of(baseUrl + "/auth", baseUrl)
+        ));
+        client.setWebOrigins(configuration.getListOrDefault(
+                "KEYCLOAK_UI_CLIENT_WEB_ORIGINS",
+                List.of(baseUrl)
+        ));
         client.setNotBefore(0);
         client.setBearerOnly(false);
         client.setConsentRequired(false);
@@ -58,7 +82,10 @@ public class UiClientConfiguration {
         client.setDirectAccessGrantsEnabled(false);
         client.setServiceAccountsEnabled(false);
         client.setPublicClient(true);
-        client.setFrontchannelLogout(true);
+        client.setFrontchannelLogout(configuration.getBooleanOrDefault(
+                "KEYCLOAK_UI_CLIENT_FRONTCHANNEL_LOGOUT",
+                DEFAULT_FRONTCHANNEL_LOGOUT
+        ));
         client.setProtocol("openid-connect");
         client.setAttributes(Map.of(
                 "realm_client", "false",
@@ -66,7 +93,10 @@ public class UiClientConfiguration {
                 "backchannel.logout.session.required", "true",
                 "standard.token.exchange.enabled", "false",
                 "frontchannel.logout.session.required", "true",
-                "post.logout.redirect.uris", "http://localhost:4200/logout",
+                "post.logout.redirect.uris", String.join("##", configuration.getListOrDefault(
+                        "KEYCLOAK_UI_CLIENT_POST_LOGOUT_REDIRECT_URIS",
+                        List.of(baseUrl + "/logout")
+                )),
                 "oauth2.device.authorization.grant.enabled", "false",
                 "display.on.consent.screen", "false",
                 "pkce.code.challenge.method", "S256",

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RealmsResource;
-import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.userprofile.config.UPAttribute;
@@ -28,12 +27,32 @@ public class RealmConfiguration {
      * Configures the realm, first validates if the realm exists and if none exists, creates the realm.
      */
     public void configure(String realmName, String realmDisplayName) {
-        List<RealmRepresentation> realms = realmsResource.findAll();
-        if (realms.isEmpty() || realms.stream().noneMatch(realm -> realm.getId().equals(realmName))) {
+        if (!realmExists(realmName)) {
             log.infof("Realm does not yet exist, creating for realm: %s", realmName);
             createRealm(realmName, realmDisplayName, realmsResource);
         }
         updateRealm(realmName);
+    }
+
+    /**
+     * Checks whether a realm with the given name already exists.
+     *
+     * @param realmName Name of the realm to check.
+     * @return {@code true} when a realm with the given name exists, otherwise {@code false}.
+     */
+    public boolean realmExists(String realmName) {
+        List<RealmRepresentation> realms = realmsResource.findAll();
+        return realms.stream().anyMatch(realm -> realmName.equals(realm.getId()));
+    }
+
+    /**
+     * Deletes the realm with the given name.
+     *
+     * @param realmName Name of the realm to delete.
+     */
+    public void deleteRealm(String realmName) {
+        realmsResource.realm(realmName).remove();
+        log.infof("Deleted realm '%s'", realmName);
     }
 
     private void createRealm(String realmName, String displayName, RealmsResource realmsResource) {
