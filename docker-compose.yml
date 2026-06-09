@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:18
     container_name: postgres
     environment:
       POSTGRES_DB: keycloak
@@ -21,6 +21,13 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      - KC_DB
+      - KC_DB_SCHEMA
+      - KC_DB_URL_HOST
+      - KC_DB_URL_PORT
+      - KC_DB_URL_DATABASE
+      - KC_DB_USERNAME
+      - KC_DB_PASSWORD
       - KC_LOG_LEVEL
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
@@ -33,7 +40,7 @@ services:
 
     #      - JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,address=*:8787,server=y,suspend=n"
     container_name: keycloak
-    entrypoint: /opt/keycloak/bin/kc.sh start-dev --http-enabled=true --cache=local
+    entrypoint: /opt/keycloak/bin/kc.sh start --http-enabled=true --hostname-strict=false --cache=local
     ports:
       - "8080:8080"
     healthcheck:
@@ -56,18 +63,31 @@ services:
       start_period: 10s
 
   keycloak-java-configuration:
-    image: eclipse-temurin:21-jre
+    build:
+      context: .
+      dockerfile: java-configuration/Dockerfile
     volumes:
-      - ./java-configuration/target/java-configuration.jar:/jars/java-configuration.jar
       - ./test-users.json:/config/test-users.json
     environment:
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
       - KEYCLOAK_CONFIG_SERVER_URI
       - KEYCLOAK_CONFIG_REALM
+      - KEYCLOAK_RECREATE_REALM
       - KEYCLOAK_ALLOWED_IP_ADDRESS
       - KEYCLOAK_CREATE_TEST_USERS
       - KEYCLOAK_TEST_USERS_FILE
+      - KEYCLOAK_UI_CLIENT_ID
+      - KEYCLOAK_UI_CLIENT_NAME
+      - KEYCLOAK_UI_CLIENT_DESCRIPTION
+      - KEYCLOAK_UI_CLIENT_BASE_URL
+      - KEYCLOAK_UI_CLIENT_ROOT_URL
+      - KEYCLOAK_UI_CLIENT_ADMIN_URL
+      - KEYCLOAK_UI_CLIENT_REDIRECT_URIS
+      - KEYCLOAK_UI_CLIENT_WEB_ORIGINS
+      - KEYCLOAK_UI_CLIENT_POST_LOGOUT_REDIRECT_URIS
+      - KEYCLOAK_UI_CLIENT_ENABLED
+      - KEYCLOAK_UI_CLIENT_FRONTCHANNEL_LOGOUT
     working_dir: /jars
     command: java -Dkeycloak.server=${KEYCLOAK_CONFIG_SERVER_URI} -Dkeycloak.realm=${KEYCLOAK_CONFIG_REALM} -Dkeycloak.user=${KEYCLOAK_ADMIN} -Dkeycloak.password=${KEYCLOAK_ADMIN_PASSWORD} -jar java-configuration.jar
     #    Uncomment if you want to enable debug mode, in IntelliJ Run Configurations add a Remote JVM Debug execution on port 5005

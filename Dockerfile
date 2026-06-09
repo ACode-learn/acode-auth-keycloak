@@ -38,13 +38,10 @@ RUN microdnf update -y && \
     ln -sf /usr/share/zoneinfo/Europe/Athens /etc/localtime # set timezone
 
 COPY --from=keycloak_builder --chown=1000:0 /opt/keycloak /opt/keycloak
-RUN mkdir -p /opt/keycloak-config && chown 1000:0 /opt/keycloak-config
-COPY --chown=1000:0 java-configuration/target/java-configuration.jar /opt/keycloak-config
-COPY --chown=1000:0 java-configuration/target/classes/scripts/start-configuration.sh /opt/keycloak-config
 
 
 USER 1000
-WORKDIR /opt/keycloak-config
+WORKDIR /opt/keycloak
 
 EXPOSE 8080
 EXPOSE 8443
